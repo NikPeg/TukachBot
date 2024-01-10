@@ -22,6 +22,7 @@ public class TukachBot extends TelegramLongPollingBot {
         SendMessage message = new SendMessage(); // Create a SendMessage object with mandatory fields
         message.setChatId(chatId.toString());
         message.setText(textToSend);
+        message.enableHtml(true);
         if (markup != null) {
             message.setReplyMarkup(markup);
         }
@@ -34,10 +35,18 @@ public class TukachBot extends TelegramLongPollingBot {
     }
 
     private void startCommandReceived(Long chatId, String name) {
-        String answer = "Добрый день, " + name + "! Я бот системы приема заявок нарушения корпоративной этики. " +
+        String answer = "\uD83D\uDC4BДобрый день, " + name + "!\n" +
+                "\uD83D\uDE0EЯ бот системы приема заявок нарушения корпоративной этики. " +
                 "Я здесь, чтобы помочь вам поддерживать высокие стандарты профессионального поведения в нашем " +
-                "коллективе. Что вы хотели бы сделать сегодня?";
+                "коллективе.\n" +
+                "❓<b>Выберете нужное действие:</b>";
         sendMessage(chatId, answer, Buttons.startInlineMarkup());
+    }
+
+    private void requestCommandReceived(Long chatId) {
+        String answer = "\uD83D\uDD25Система проверки нарушения корпоративной этики гарантирует, что Ваша заявка " +
+                "будет защищена и не будет доступна третьим лицам.\n<b>Введите Ваши ФИО:</b>";
+        sendMessage(chatId, answer, Buttons.homeInlineMarkup());
     }
 
     private void helpCommandReceived(Long chatId) {
@@ -56,6 +65,16 @@ public class TukachBot extends TelegramLongPollingBot {
                 "\n" +
                 "Благодарим вас за стремление поддерживать корпоративную этику в нашей компании. Если у вас возникнут дополнительные вопросы, не стесняйтесь обращаться.";
         sendMessage(chatId, answer, Buttons.homeInlineMarkup());
+    }
+
+    private void listCommandReceived(Long chatId) {
+        String answer = "💫Пока Ваш список заявок пуст! Отправьте первую заявку, чтобы пополнить его.";
+        sendMessage(chatId, answer, Buttons.homeInlineMarkup());
+    }
+
+    private void unknownCommandReceived(Long chatId) {
+        String answer = "\uD83E\uDD37\u200D♂\uFE0FЯ пока не знаю такой команды. Выбери один из вариантов действий:";
+        sendMessage(chatId, answer, Buttons.startInlineMarkup());
     }
 
     @Override
@@ -92,10 +111,18 @@ public class TukachBot extends TelegramLongPollingBot {
             case "/start":
                 startCommandReceived(chatId, userName);
                 break;
+            case "request":
+                requestCommandReceived(chatId);
+                break;
             case "/help":
                 helpCommandReceived(chatId);
                 break;
-            default: break;
+            case "list":
+                listCommandReceived(chatId);
+                break;
+            default:
+                unknownCommandReceived(chatId);
+                break;
         }
     }
 
