@@ -1,0 +1,79 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2024-02-11-create-user-table
+      author: adarunova
+      changes:
+        - createTable:
+            tableName: role
+            remarks: Роль
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  remarks: Идентификатор роли
+                  autoIncrement: true
+                  constraints:
+                    - primaryKey: true
+              - column:
+                  name: name
+                  type: text
+                  remarks: Название роли
+                  constraints:
+                    - nullable: false
+  - changeSet:
+      id: 2024-02-11-create-permission-table
+      author: adarunova
+      changes:
+        - createTable:
+            tableName: permission
+            remarks: Разрешение
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  remarks: Идентификатор разрешения
+                  autoIncrement: true
+                  constraints:
+                    - primaryKey: true
+              - column:
+                  name: name
+                  type: text
+                  remarks: Обозначение разрешения
+                  constraints:
+                    - nullable: false
+  - changeSet:
+      id: 2024-02-11-create-role-permission-table
+      author: adarunova
+      changes:
+        - createTable:
+            tableName: role_permission
+            remarks: Связь роли и разрешения
+            columns:
+              - column:
+                  name: role_id
+                  type: bigint
+                  remarks: Идентификатор роли
+                  constraints:
+                    - nullable: false
+              - column:
+                  name: permission_id
+                  type: bigint
+                  remarks: Идентификатор разрешения
+                  constraints:
+                    - nullable: false
+        - addPrimaryKey:
+            tableName: role_permission
+            columnNames: role_id, permission_id
+            constraintName: role_permission_pk
+        - addForeignKeyConstraint:
+            constraintName: role_permission_role_id_fkey
+            baseTableName: role_permission
+            baseColumnNames: role_id
+            referencedTableName: role
+            referencedColumnNames: id
+        - addForeignKeyConstraint:
+            constraintName: role_permission_permission_id_fkey
+            baseTableName: role_permission
+            baseColumnNames: permission_id
+            referencedTableName: permission
+            referencedColumnNames: id

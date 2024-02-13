@@ -1,0 +1,20 @@
+image: docker:latest
+services:
+  - docker:dind
+
+stages:
+  - build
+  - test
+
+build:
+  image: maven:3.8.3-openjdk-17
+  stage: build
+  script: "mvn clean package -Dmaven.test.skip=true -f pom.xml"
+  artifacts:
+    paths:
+      - target/*.jar
+
+test:
+  image: maven:3.8.3-openjdk-17
+  stage: test
+  script: "mvn test -f pom.xml"

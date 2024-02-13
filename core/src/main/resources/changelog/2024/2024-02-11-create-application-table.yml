@@ -1,0 +1,96 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2024-02-11-create-application-table
+      author: adarunova
+      changes:
+        - createTable:
+            tableName: application
+            remarks: Заявки
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  remarks: Уникальный идентификатор
+                  autoIncrement: true
+                  constraints:
+                    - primaryKey: true
+              - column:
+                  name: status
+                  type: text
+                  remarks: Статус заявки
+                  constraints:
+                    - nullable: false
+              - column:
+                  name: type
+                  type: text
+                  remarks: Тип заявки
+                  constraints:
+                    - nullable: false
+              - column:
+                  name: topic
+                  type: text
+                  remarks: Тема заявки
+                  constraints:
+                    - nullable: false
+              - column:
+                  name: description
+                  type: text
+                  remarks: Суть заявки
+                  constraints:
+                    - nullable: false
+              - column:
+                  name: initiator_email
+                  type: text
+                  remarks: E-mail заявителя
+              - column:
+                  name: initiator_tg
+                  type: text
+                  remarks: Telegram заявителя
+              - column:
+                  name: initiator_fio
+                  type: text
+                  remarks: ФИО заявителя
+              - column:
+                  name: last_filled_field
+                  type: text
+                  remarks: Последнее заполненное поле пользователем через Telegram-бота
+              - column:
+                  name: reviewer_login
+                  type: text
+                  remarks: Логин рассмотрителя заявки (user.login)
+              - column:
+                  name: reviewer_response
+                  type: text
+                  remarks: Информация об ответе на заявку
+              - column:
+                  name: created_dttm
+                  type: timestamp without timezone
+                  remarks: Дата создания заявления
+                  defaultValueComputed: current_timestamp
+                  constraints:
+                    - nullable: false
+              - column:
+                  name: last_modified_dttm
+                  type: timestamp without timezone
+                  remarks: Дата изменения записи
+                  defaultValueComputed: current_timestamp
+                  constraints:
+                    - nullable: false
+        - createIndex:
+            tableName: application
+            indexName: application_initiator_tg_idx
+            columns:
+              - column:
+                  name: initiator_tg
+        - createIndex:
+            tableName: application
+            indexName: application_reviewer_login_idx
+            columns:
+              - column:
+                  name: reviewer_login
+        - createIndex:
+            tableName: application
+            indexName: application_status_idx
+            columns:
+              - column:
+                  name: status

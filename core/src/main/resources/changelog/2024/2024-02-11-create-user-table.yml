@@ -1,0 +1,45 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2024-02-11-create-user-table
+      author: adarunova
+      changes:
+        - createTable:
+            tableName: user
+            remarks: Пользователь (сотрудник компании)
+            columns:
+              - column:
+                  name: login
+                  type: text
+                  remarks: Логин пользователя
+                  constraints:
+                    - primaryKey: true
+              - column:
+                  name: email
+                  type: text
+                  remarks: Email сотрудника
+                  constraints:
+                    - nullable: false
+              - column:
+                  name: password
+                  type: text
+                  remarks: Пароль сотрудника
+                  constraints:
+                    - nullable: false
+              - column:
+                  name: role_id
+                  type: bigint
+                  remarks: Идентификатор роли (role.id)
+                  constraints:
+                    - nullable: false
+        - createIndex:
+            tableName: user
+            indexName: user_email_idx
+            columns:
+              - column:
+                  name: email
+        - addForeignKeyConstraint:
+            constraintName: user_role_id_fkey
+            baseTableName: user
+            baseColumnNames: role_id
+            referencedTableName: role
+            referencedColumnNames: id
