@@ -1,4 +1,5 @@
 package ru.hse.edu.tukach;
+import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -7,10 +8,16 @@ import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScope
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.hse.edu.tukach.components.Buttons;
+import ru.hse.edu.tukach.service.application.ApplicationService;
+import ru.hse.edu.tukach.dto.application.ApplicationFromTelegramCreationDto;
 
 import static ru.hse.edu.tukach.components.BotCommands.LIST_OF_COMMANDS;
 
+@Service
 public class TukachBot extends TelegramLongPollingBot {
+    private ApplicationService service;
+    private ApplicationFromTelegramCreationDto application;
+
     public TukachBot() {
         try {
             this.execute(new SetMyCommands(LIST_OF_COMMANDS, new BotCommandScopeDefault(), null));
@@ -47,6 +54,9 @@ public class TukachBot extends TelegramLongPollingBot {
         String answer = "\uD83D\uDD25Система проверки нарушения корпоративной этики гарантирует, что Ваша заявка " +
                 "будет защищена и не будет доступна третьим лицам.\n<b>Введите Ваши ФИО:</b>";
         sendMessage(chatId, answer, Buttons.homeInlineMarkup());
+        this.application = new ApplicationFromTelegramCreationDto();
+        application.setInitiatorTg(chatId.toString());
+//        service.save(application);
     }
 
     private void helpCommandReceived(Long chatId) {
