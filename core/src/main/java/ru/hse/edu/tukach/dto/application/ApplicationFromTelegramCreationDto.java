@@ -15,9 +15,13 @@ public class ApplicationFromTelegramCreationDto extends BaseApplicationCreationD
     @Schema(description = "Тип заявки")
     private String initiatorTg;
 
+    @NotEmpty(message = "Не заполнено обязательное поле - заполняемое поле")
+    @Schema(description = "Заполняемое поле")
+    private String currentField;
+
     @Override
     public BaseApplicationCreationDto setDescription(String description) {
-        if (StringUtils.hasText(description)) {
+        if (!StringUtils.hasText(description)) {
             throw new IllegalArgumentException("Текст заявки не заполнен");
         }
         return super.setDescription(description);
@@ -25,7 +29,7 @@ public class ApplicationFromTelegramCreationDto extends BaseApplicationCreationD
 
     @Override
     public BaseApplicationCreationDto setTopic(String topic) {
-        if (StringUtils.hasText(topic)) {
+        if (!StringUtils.hasText(topic)) {
             throw new IllegalArgumentException("Тема заявки не заполнена");
         }
         return super.setTopic(topic);

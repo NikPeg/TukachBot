@@ -17,7 +17,7 @@ public abstract class BaseApplicationCreationDto {
     private ApplicationType type;
 
     @NotEmpty(message = "Не заполнено обязательное поле - тема заявки")
-    @Schema(description = "Тип заявки")
+    @Schema(description = "Тема заявки")
     private String topic;
 
     @NotEmpty(message = "Не заполнено обязательное поле - текст заявки")

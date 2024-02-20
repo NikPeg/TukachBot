@@ -8,6 +8,7 @@ import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScope
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.hse.edu.tukach.components.Buttons;
+import ru.hse.edu.tukach.model.application.ApplicationType;
 import ru.hse.edu.tukach.service.application.ApplicationService;
 import ru.hse.edu.tukach.dto.application.ApplicationFromTelegramCreationDto;
 
@@ -53,10 +54,11 @@ public class TukachBot extends TelegramLongPollingBot {
 
     private void requestCommandReceived(Long chatId) {
         String answer = "\uD83D\uDD25Система проверки нарушения корпоративной этики гарантирует, что Ваша заявка " +
-                "будет защищена и не будет доступна третьим лицам.\n<b>Введите Ваши ФИО:</b>";
+                "будет защищена и не будет доступна третьим лицам.\n<b>Введите тип заявки:</b>";
         sendMessage(chatId, answer, Buttons.homeInlineMarkup());
         this.application = new ApplicationFromTelegramCreationDto();
-        application.setInitiatorTg(chatId.toString());
+        this.application.setInitiatorTg(chatId.toString());
+        this.application.setCurrentField("type");
 //        service.save(application);
     }
 
@@ -78,10 +80,50 @@ public class TukachBot extends TelegramLongPollingBot {
         sendMessage(chatId, answer, Buttons.homeInlineMarkup());
     }
 
-    private void unknownCommandReceived(Long chatId) {
-        String answer = "\uD83E\uDD37\u200D♂\uFE0FЯ пока не знаю такой команды. " +
-                "<b>Выбери один из вариантов действий:</b>";
-        sendMessage(chatId, answer, Buttons.startInlineMarkup());
+    private void unknownCommandReceived(Long chatId, String receivedMessage) {
+        if (this.application.getInitiatorTg().equals(chatId.toString())) {
+            applicationCompletionReceived(chatId, receivedMessage);
+        }
+        else {
+            String answer = "\uD83E\uDD37\u200D♂\uFE0FЯ пока не знаю такой команды. " +
+                    "<b>Выбери один из вариантов действий:</b>";
+            sendMessage(chatId, answer, Buttons.startInlineMarkup());
+        }
+    }
+
+    private void applicationCompletionReceived(Long chatId, String receivedMessage) {
+        String answer = "";
+        switch (this.application.getCurrentField()) {
+            case "type":
+                this.application.setType(ApplicationType.valueOf(receivedMessage));
+                this.application.setCurrentField("topic");
+                answer = "Теперь введите тему заявки:";
+                break;
+            case "topic":
+                this.application.setTopic(receivedMessage);
+                this.application.setCurrentField("description");
+                answer = "Теперь введите описание заявки:";
+                break;
+            case "description":
+                this.application.setDescription(receivedMessage);
+                this.application.setCurrentField("fio");
+                answer = "Теперь введите Ваше ФИО:";
+                break;
+            case "fio":
+                this.application.setInitiatorFio(receivedMessage);
+                this.application.setCurrentField(null);
+                answer = "❤\uFE0FСпасибо, заявка сохранена! Информация о заявке:\n" +
+                         "Тип заявки: " + this.application.getType() +
+                         "\nТема заявки: " + this.application.getTopic() +
+                         "\nТекст заявки: " + this.application.getDescription() +
+                         "\nВаши ФИО: " + this.application.getInitiatorFio() +
+                         "\n<b>Заявка в обработке, ожидайте!</b>";
+                break;
+            default:
+                answer = "Что-то пошло не так...";
+                break;
+        }
+        sendMessage(chatId, answer, Buttons.homeInlineMarkup());
     }
 
     @Override
@@ -114,7 +156,7 @@ public class TukachBot extends TelegramLongPollingBot {
     }
 
     private void botAnswerUtils(String receivedMessage, long chatId, String userName) {
-        switch (receivedMessage){
+        switch (receivedMessage) {
             case "/start":
                 startCommandReceived(chatId, userName);
                 break;
@@ -128,7 +170,7 @@ public class TukachBot extends TelegramLongPollingBot {
                 listCommandReceived(chatId);
                 break;
             default:
-                unknownCommandReceived(chatId);
+                unknownCommandReceived(chatId, receivedMessage);
                 break;
         }
     }
