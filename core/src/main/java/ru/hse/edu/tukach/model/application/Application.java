@@ -72,12 +72,6 @@ public class Application {
     private String initiatorFio;
 
     /**
-     * Последнее заполненное пользователем поле
-     * В Telegram-боте поля заполняются последовательно, поэтому сохраняем последнее заполненное
-     */
-    private ApplicationField lastFilledField;
-
-    /**
      * Логин рассмотрителя заявки (user.login)
      */
     private String reviewerLogin;

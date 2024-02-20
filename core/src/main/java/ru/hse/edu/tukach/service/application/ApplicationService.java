@@ -4,7 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.hse.edu.tukach.dto.application.ApplicationFromEmailCreationDto;
+import ru.hse.edu.tukach.dto.application.ApplicationFromTelegramCreationDto;
 import ru.hse.edu.tukach.dto.application.ApplicationLiteDto;
+import ru.hse.edu.tukach.dto.application.ApplicationSource;
 import ru.hse.edu.tukach.exception.NotFoundException;
 import ru.hse.edu.tukach.exception.constant.ExceptionCode;
 import ru.hse.edu.tukach.mapper.application.ApplicationMapper;
@@ -34,17 +36,15 @@ public class ApplicationService {
     }
 
     /**
-     * Метод получения заявки по её id. Данный метод используется, когда Telegram пользователь:
-     * 1. в процессе заполнения заявки, и нужно получать текущее состояние заявки,
-     *    чтобы бот предлагал заполнять только не заполненные поля
-     * 2. запрашивает информацию по конкретной отправленной им заявке
+     * Сохранение новой заявки, заполненной из Telegram-бота.
+     * При вызове с фронта сохраняется сразу вся заполненная заявка
      */
-    @Transactional(readOnly = true)
-    public Application getApplicationById(Long id) {
-        return applicationRepository.findById(id)
-            .orElseThrow(
-                () -> new NotFoundException(ExceptionCode.APPLICATION_NOT_FOUND, "Заявка %d не найдена".formatted(id))
-            );
+    @Transactional
+    public Long save(ApplicationFromTelegramCreationDto dto) {
+        Application application = applicationMapper.toApplication(dto);
+        application.setStatus(ApplicationStatus.NEW);
+
+        return applicationRepository.save(application).getId();
     }
 
     /**
@@ -58,17 +58,20 @@ public class ApplicationService {
     }
 
     /**
-     * Метод получения всех заявок по email'у пользователя + id заявки.
-     * Данный метод используется, когда пользователь, отправивший заявку с фронта, хочет получить информацию о ней
+     * Метод получения всех заявок по email'у/Telegram'у пользователя + id заявки.
+     * Данный метод используется, когда пользователь, отправивший заявку, хочет получить информацию о ней
      */
     @Transactional(readOnly = true)
-    public Application getApplicationByInitiatorEmail(Long id, String initiatorEmail) {
+    public Application getApplicationByIdAndInitiator(Long id, String initiator, ApplicationSource source) {
         return applicationRepository.findById(id)
-            .filter(it -> initiatorEmail.equals(it.getInitiatorEmail()))
+            .filter(
+                it -> source == ApplicationSource.EMAIL && initiator.equals(it.getInitiatorEmail())
+                || source == ApplicationSource.TELEGRAM && initiator.equals(it.getInitiatorTg())
+            )
             .orElseThrow(
                 () -> new NotFoundException(
                     ExceptionCode.APPLICATION_NOT_FOUND,
-                    "Заявка %d для пользователя %s не найдена".formatted(id, initiatorEmail)
+                    "Заявка %d для пользователя %s не найдена".formatted(id, initiator)
                 )
             );
     }

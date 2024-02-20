@@ -3,6 +3,7 @@ package ru.hse.edu.tukach.model.rolepermission;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
 import javax.persistence.Embeddable;
 
 /**
@@ -11,7 +12,7 @@ import javax.persistence.Embeddable;
 @Getter
 @Setter
 @Embeddable
-public class RolePermissionId {
+public class RolePermissionId implements Serializable {
 
     /**
      * Идентификатор роли

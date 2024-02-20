@@ -51,10 +51,6 @@ databaseChangeLog:
                   type: text
                   remarks: ФИО заявителя
               - column:
-                  name: last_filled_field
-                  type: text
-                  remarks: Последнее заполненное поле пользователем через Telegram-бота
-              - column:
                   name: reviewer_login
                   type: text
                   remarks: Логин рассмотрителя заявки (user.login)
