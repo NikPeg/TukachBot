@@ -25,6 +25,7 @@ public class TukachBot extends TelegramLongPollingBot {
         } catch (TelegramApiException e){
             e.printStackTrace();
         }
+        this.application = new ApplicationFromTelegramCreationDto();
 //        this.service = service;
     }
     void sendMessage(Long chatId, String textToSend, InlineKeyboardMarkup markup) {
@@ -56,7 +57,6 @@ public class TukachBot extends TelegramLongPollingBot {
         String answer = "\uD83D\uDD25Система проверки нарушения корпоративной этики гарантирует, что Ваша заявка " +
                 "будет защищена и не будет доступна третьим лицам.\n<b>Введите тип заявки:</b>";
         sendMessage(chatId, answer, Buttons.homeInlineMarkup());
-        this.application = new ApplicationFromTelegramCreationDto();
         this.application.setInitiatorTg(chatId.toString());
         this.application.setCurrentField("type");
 //        service.save(application);
@@ -76,8 +76,21 @@ public class TukachBot extends TelegramLongPollingBot {
     }
 
     private void listCommandReceived(Long chatId) {
-        String answer = "💫Пока Ваш список заявок пуст! Отправьте первую заявку, чтобы пополнить его.";
-        sendMessage(chatId, answer, Buttons.homeInlineMarkup());
+        if (this.application.getCurrentField() != null && this.application.getCurrentField().equals("all")) {
+            String answer = "\uD83D\uDCD5Список Ваших заявок:";
+            sendMessage(chatId, answer, Buttons.homeInlineMarkup());
+            answer = "Заявка номер 1:" +
+                    "\nТип заявки: " + this.application.getType() +
+                    "\nТема заявки: " + this.application.getTopic() +
+                    "\nТекст заявки: " + this.application.getDescription() +
+                    "\nВаши ФИО: " + this.application.getInitiatorFio() +
+                    "\n<b>Заявка в обработке, ожидайте!</b>";
+            sendMessage(chatId, answer, Buttons.homeInlineMarkup());
+        }
+        else {
+            String answer = "💫Пока Ваш список заявок пуст! Отправьте первую заявку, чтобы пополнить его.";
+            sendMessage(chatId, answer, Buttons.homeInlineMarkup());
+        }
     }
 
     private void unknownCommandReceived(Long chatId, String receivedMessage) {
@@ -111,7 +124,7 @@ public class TukachBot extends TelegramLongPollingBot {
                 break;
             case "fio":
                 this.application.setInitiatorFio(receivedMessage);
-                this.application.setCurrentField(null);
+                this.application.setCurrentField("all");
                 answer = "❤\uFE0FСпасибо, заявка сохранена! Информация о заявке:\n" +
                          "Тип заявки: " + this.application.getType() +
                          "\nТема заявки: " + this.application.getTopic() +
