@@ -15,7 +15,7 @@ import static ru.hse.edu.tukach.components.BotCommands.LIST_OF_COMMANDS;
 
 @Service
 public class TukachBot extends TelegramLongPollingBot {
-    private ApplicationService service;
+//    private final ApplicationService service;
     private ApplicationFromTelegramCreationDto application;
 
     public TukachBot() {
@@ -24,6 +24,7 @@ public class TukachBot extends TelegramLongPollingBot {
         } catch (TelegramApiException e){
             e.printStackTrace();
         }
+//        this.service = service;
     }
     void sendMessage(Long chatId, String textToSend, InlineKeyboardMarkup markup) {
         SendMessage message = new SendMessage(); // Create a SendMessage object with mandatory fields
