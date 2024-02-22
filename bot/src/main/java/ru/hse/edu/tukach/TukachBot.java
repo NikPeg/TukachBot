@@ -1,4 +1,5 @@
 package ru.hse.edu.tukach;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
@@ -15,19 +16,20 @@ import ru.hse.edu.tukach.dto.application.ApplicationFromTelegramCreationDto;
 import static ru.hse.edu.tukach.components.BotCommands.LIST_OF_COMMANDS;
 
 @Service
+@RequiredArgsConstructor
 public class TukachBot extends TelegramLongPollingBot {
-//    private final ApplicationService service;
+    private final ApplicationService service;
     private ApplicationFromTelegramCreationDto application;
 
-    public TukachBot() {
-        try {
-            this.execute(new SetMyCommands(LIST_OF_COMMANDS, new BotCommandScopeDefault(), null));
-        } catch (TelegramApiException e){
-            e.printStackTrace();
-        }
-        this.application = new ApplicationFromTelegramCreationDto();
-//        this.service = service;
-    }
+//    public TukachBot() {
+//        try {
+//            this.execute(new SetMyCommands(LIST_OF_COMMANDS, new BotCommandScopeDefault(), null));
+//        } catch (TelegramApiException e){
+//            e.printStackTrace();
+//        }
+//        this.application = new ApplicationFromTelegramCreationDto();
+////        this.service = service;
+//    }
     void sendMessage(Long chatId, String textToSend, InlineKeyboardMarkup markup) {
         SendMessage message = new SendMessage(); // Create a SendMessage object with mandatory fields
         message.setChatId(chatId.toString());
@@ -131,6 +133,7 @@ public class TukachBot extends TelegramLongPollingBot {
                          "\nТекст заявки: " + this.application.getDescription() +
                          "\nВаши ФИО: " + this.application.getInitiatorFio() +
                          "\n<b>Заявка в обработке, ожидайте!</b>";
+                service.save(application);
                 break;
             default:
                 answer = "Что-то пошло не так...";

@@ -15,7 +15,6 @@ public interface ApplicationMapper {
     @Mapping(target = "createdDateTime", ignore = true)
     @Mapping(target = "lastModifiedDateTime", ignore = true)
     @Mapping(target = "initiatorTg", ignore = true)
-//    @Mapping(target = "lastFilledField", ignore = true)
     @Mapping(target = "reviewerLogin", ignore = true)
     @Mapping(target = "reviewerResponse", ignore = true)
     Application toApplication(ApplicationFromEmailCreationDto dto);
@@ -25,7 +24,6 @@ public interface ApplicationMapper {
     @Mapping(target = "createdDateTime", ignore = true)
     @Mapping(target = "lastModifiedDateTime", ignore = true)
     @Mapping(target = "initiatorEmail", ignore = true)
-//    @Mapping(target = "lastFilledField", ignore = true)
     @Mapping(target = "reviewerLogin", ignore = true)
     @Mapping(target = "reviewerResponse", ignore = true)
     Application toApplication(ApplicationFromTelegramCreationDto dto);
