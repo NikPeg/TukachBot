@@ -9,18 +9,13 @@
     <packaging>pom</packaging>
     <version>${revision}</version>
     <name>tukach</name>
-    <description>Telegram-bot for Tucach project</description>
+    <description>Telegram-bot for Tukach project</description>
 
     <modules>
         <module>core</module>
         <module>bot</module>
     </modules>
-    <repositories>
-        <repository>
-            <id>projectlombok.org</id>
-            <url>https://projectlombok.org/edge-releases</url>
-        </repository>
-    </repositories>
+
     <properties>
         <revision>tukach-2024.0.0-SNAPSHOT</revision>
         <java.version>17</java.version>
@@ -47,6 +42,11 @@
     <dependencyManagement>
 
         <dependencies>
+            <dependency>
+                <groupId>ru.hse.edu</groupId>
+                <artifactId>core</artifactId>
+                <version>${revision}</version>
+            </dependency>
 
             <!--Spring-->
             <dependency>
@@ -93,13 +93,6 @@
                 <groupId>org.springdoc</groupId>
                 <artifactId>springdoc-openapi-ui</artifactId>
                 <version>${springdoc-openapi-ui.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok</artifactId>
-                <version>edge-SNAPSHOT</version>
-                <scope>provided</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

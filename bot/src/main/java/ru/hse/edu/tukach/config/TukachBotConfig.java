@@ -10,6 +10,7 @@ import ru.hse.edu.tukach.service.application.ApplicationService;
 
 @Configuration
 public class TukachBotConfig {
+
     @Bean
     public TukachBot tukachBot(ApplicationService applicationService) {
         return new TukachBot(applicationService);

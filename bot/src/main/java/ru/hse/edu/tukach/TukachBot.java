@@ -1,4 +1,5 @@
 package ru.hse.edu.tukach;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -9,15 +10,16 @@ import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScope
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.hse.edu.tukach.components.Buttons;
+import ru.hse.edu.tukach.dto.application.ApplicationFromTelegramCreationDto;
 import ru.hse.edu.tukach.model.application.ApplicationType;
 import ru.hse.edu.tukach.service.application.ApplicationService;
-import ru.hse.edu.tukach.dto.application.ApplicationFromTelegramCreationDto;
 
 import static ru.hse.edu.tukach.components.BotCommands.LIST_OF_COMMANDS;
 
 @Service
 @RequiredArgsConstructor
 public class TukachBot extends TelegramLongPollingBot {
+
     private final ApplicationService service;
     private ApplicationFromTelegramCreationDto application;
 

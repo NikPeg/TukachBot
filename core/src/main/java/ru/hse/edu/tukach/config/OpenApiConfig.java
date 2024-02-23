@@ -29,7 +29,7 @@ public class OpenApiConfig {
     public GroupedOpenApi publicApi() {
         return GroupedOpenApi.builder()
             .group("epp-dictionary")
-            .packagesToScan("ru.hse.edu.eppdictionary")
+            .packagesToScan("ru.hse.edu.tukach")
             .pathsToMatch("/api/**")
             .build();
     }
