@@ -16,7 +16,6 @@ import ru.hse.edu.tukach.service.application.ApplicationService;
 
 import static ru.hse.edu.tukach.components.BotCommands.LIST_OF_COMMANDS;
 
-@Service
 @RequiredArgsConstructor
 public class TukachBot extends TelegramLongPollingBot {
 

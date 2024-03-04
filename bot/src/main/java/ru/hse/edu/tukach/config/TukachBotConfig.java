@@ -16,6 +16,7 @@ public class TukachBotConfig {
         return new TukachBot(applicationService);
     }
 
+    @Bean
     public TelegramBotsApi telegramBotsApi(TukachBot tukachBot) {
         TelegramBotsApi telegramBotsApi = null;
         try {
