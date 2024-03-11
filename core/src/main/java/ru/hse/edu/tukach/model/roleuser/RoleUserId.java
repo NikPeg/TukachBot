@@ -1,4 +1,4 @@
-package ru.hse.edu.tukach.model.rolepermission;
+package ru.hse.edu.tukach.model.roleuser;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -7,12 +7,12 @@ import java.io.Serializable;
 import javax.persistence.Embeddable;
 
 /**
- * Роль - разрешение
+ * Роль - пользователь
  */
 @Getter
 @Setter
 @Embeddable
-public class RolePermissionId implements Serializable {
+public class RoleUserId implements Serializable {
 
     /**
      * Идентификатор роли
@@ -20,7 +20,7 @@ public class RolePermissionId implements Serializable {
     private Long roleId;
 
     /**
-     * Идентификатор разрешения
+     * Идентификатор пользователя
      */
-    private Long permissionId;
+    private Long userId;
 }

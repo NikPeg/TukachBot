@@ -15,7 +15,9 @@ import ru.hse.edu.tukach.dto.application.ApplicationFromEmailCreationDto;
 import ru.hse.edu.tukach.dto.application.ApplicationSource;
 import ru.hse.edu.tukach.dto.rest.Response;
 import ru.hse.edu.tukach.model.application.Application;
+import ru.hse.edu.tukach.permissions.annotations.Permissions;
 import ru.hse.edu.tukach.service.application.ApplicationService;
+import ru.hse.edu.tukach.service.security.permission.CustomPermission;
 
 @RestController
 @RequestMapping(value = "/api/v1/application")
@@ -30,7 +32,7 @@ public class ApplicationController {
         return Response.success(applicationService.save(dto));
     }
 
-    @GetMapping("/by-email/{id}")
+    @GetMapping("/{id}")
     @Operation(summary = "Получение информации по заявке пользователя, отправлявшего её с фронта")
     public Response<Application> getApplicationByIdAndInitiatorEmail(
         @Parameter(description = "Идентификатор заявки") @PathVariable Long id,
@@ -39,8 +41,9 @@ public class ApplicationController {
         return Response.success(applicationService.getApplicationByIdAndInitiator(id, email, ApplicationSource.EMAIL));
     }
 
-    @PutMapping("/start-review/{id}")
+    @PutMapping("/review/{id}")
     @Operation(summary = "Получение информации по заявке пользователя, отправлявшего её с фронта")
+    @Permissions(permissions = CustomPermission.APPLICATIONS_UPDATE)
     public void startApplicationReview(@Parameter(description = "Идентификатор заявки") @PathVariable Long id) {
 
     }

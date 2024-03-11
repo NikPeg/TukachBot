@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: 2024-02-11-create-user-table
+      id: 2024-02-11-create-role-table
       author: adarunova
       changes:
         - createTable:
@@ -16,7 +16,7 @@ databaseChangeLog:
                     - primaryKey: true
               - column:
                   name: name
-                  type: text
+                  type: varchar
                   remarks: Название роли
                   constraints:
                     - nullable: false
@@ -37,7 +37,7 @@ databaseChangeLog:
                     - primaryKey: true
               - column:
                   name: name
-                  type: text
+                  type: varchar
                   remarks: Обозначение разрешения
                   constraints:
                     - nullable: false
@@ -77,3 +77,39 @@ databaseChangeLog:
             baseColumnNames: permission_id
             referencedTableName: permission
             referencedColumnNames: id
+  - changeSet:
+      id: 2024-02-11-create-role-user-table
+      author: adarunova
+      changes:
+        - createTable:
+            tableName: role_user
+            remarks: Связь роли и пользователя
+            columns:
+              - column:
+                  name: role_id
+                  type: bigint
+                  remarks: Идентификатор роли
+                  constraints:
+                    - nullable: false
+              - column:
+                  name: user_login
+                  type: varchar
+                  remarks: Идентификатор пользователя
+                  constraints:
+                    - nullable: false
+        - addPrimaryKey:
+            tableName: role_user
+            columnNames: role_id, user_login
+            constraintName: role_user_pk
+        - addForeignKeyConstraint:
+            constraintName: role_user_role_id_fkey
+            baseTableName: role_user
+            baseColumnNames: role_id
+            referencedTableName: role
+            referencedColumnNames: id
+        - addForeignKeyConstraint:
+            constraintName: role_user_user_login_fkey
+            baseTableName: role_user
+            baseColumnNames: user_login
+            referencedTableName: user
+            referencedColumnNames: login

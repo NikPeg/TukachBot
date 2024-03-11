@@ -3,16 +3,20 @@ package ru.hse.edu.tukach.config.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.filter.CharacterEncodingFilter;
+import ru.hse.edu.tukach.service.security.UserAuthDetailsService;
 
 import java.time.Duration;
 import java.util.Collections;
@@ -23,6 +27,7 @@ import java.util.Collections;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final ObjectMapper objectMapper;
+    private final UserAuthDetailsService userDetailsService;
 
     @Value("${rest-security.jwt-key}")
     private String jwtKey;
@@ -52,8 +57,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .ignoring()
             .antMatchers("/api/openapi.yaml")
             .antMatchers("/api/api-docs")
-            // Проект не подключен к API gateway и поэтому нельзя авторизоваться в REST API
-            .antMatchers("/api/token/generate-jwt");
+            .antMatchers("/api/v1/security/generate-jwt");
     }
 
     @Override
@@ -77,4 +81,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return new JwtAuthenticationProvider(jwtKey, jwtDuration);
     }
 
+    @Bean
+    public AuthenticationManager authenticationManager(HttpSecurity http, NoOpPasswordEncoder noOpPasswordEncoder)
+        throws Exception {
+        AuthenticationManagerBuilder builder = http.getSharedObject(AuthenticationManagerBuilder.class);
+        builder.userDetailsService(userDetailsService).passwordEncoder(noOpPasswordEncoder);
+        return builder.build();
+    }
+
+    @Bean
+    public NoOpPasswordEncoder passwordEncoder() {
+        return (NoOpPasswordEncoder) NoOpPasswordEncoder.getInstance();
+    }
 }

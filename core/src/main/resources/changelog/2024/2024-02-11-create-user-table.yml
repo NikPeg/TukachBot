@@ -9,26 +9,46 @@ databaseChangeLog:
             columns:
               - column:
                   name: login
-                  type: text
+                  type: varchar
                   remarks: Логин пользователя
                   constraints:
                     - primaryKey: true
               - column:
                   name: email
-                  type: text
+                  type: varchar
                   remarks: Email сотрудника
                   constraints:
                     - nullable: false
               - column:
                   name: password
-                  type: text
+                  type: varchar
                   remarks: Пароль сотрудника
                   constraints:
                     - nullable: false
               - column:
-                  name: role_id
-                  type: bigint
-                  remarks: Идентификатор роли (role.id)
+                  name: full_name
+                  type: varchar
+                  remarks: ФИО сотрудника
+                  constraints:
+                    - nullable: false
+              - column:
+                  name: additional_info
+                  type: varchar
+                  remarks: Дополнительная информация о сотруднике
+                  constraints:
+                    - nullable: false
+              - column:
+                  name: created_dttm
+                  type: timestamp without timezone
+                  remarks: Дата создания заявления
+                  defaultValueComputed: current_timestamp
+                  constraints:
+                    - nullable: false
+              - column:
+                  name: last_modified_dttm
+                  type: timestamp without timezone
+                  remarks: Дата изменения записи
+                  defaultValueComputed: current_timestamp
                   constraints:
                     - nullable: false
         - createIndex:
@@ -37,9 +57,3 @@ databaseChangeLog:
             columns:
               - column:
                   name: email
-        - addForeignKeyConstraint:
-            constraintName: user_role_id_fkey
-            baseTableName: user
-            baseColumnNames: role_id
-            referencedTableName: role
-            referencedColumnNames: id

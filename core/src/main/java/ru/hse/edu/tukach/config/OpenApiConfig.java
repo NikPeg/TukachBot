@@ -28,7 +28,7 @@ public class OpenApiConfig {
     @Bean
     public GroupedOpenApi publicApi() {
         return GroupedOpenApi.builder()
-            .group("epp-dictionary")
+            .group("tukach")
             .packagesToScan("ru.hse.edu.tukach")
             .pathsToMatch("/api/**")
             .build();

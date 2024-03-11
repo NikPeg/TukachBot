@@ -16,47 +16,47 @@ databaseChangeLog:
                     - primaryKey: true
               - column:
                   name: status
-                  type: text
+                  type: varchar
                   remarks: Статус заявки
                   constraints:
                     - nullable: false
               - column:
                   name: type
-                  type: text
+                  type: varchar
                   remarks: Тип заявки
                   constraints:
                     - nullable: false
               - column:
                   name: topic
-                  type: text
+                  type: varchar
                   remarks: Тема заявки
                   constraints:
                     - nullable: false
               - column:
                   name: description
-                  type: text
+                  type: varchar
                   remarks: Суть заявки
                   constraints:
                     - nullable: false
               - column:
                   name: initiator_email
-                  type: text
+                  type: varchar
                   remarks: E-mail заявителя
               - column:
                   name: initiator_tg
-                  type: text
+                  type: varchar
                   remarks: Telegram заявителя
               - column:
                   name: initiator_fio
-                  type: text
+                  type: varchar
                   remarks: ФИО заявителя
               - column:
                   name: reviewer_login
-                  type: text
+                  type: varchar
                   remarks: Логин рассмотрителя заявки (user.login)
               - column:
                   name: reviewer_response
-                  type: text
+                  type: varchar
                   remarks: Информация об ответе на заявку
               - column:
                   name: created_dttm
