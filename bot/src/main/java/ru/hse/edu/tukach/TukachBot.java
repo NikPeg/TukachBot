@@ -35,10 +35,11 @@ public class TukachBot extends TelegramLongPollingBot {
         message.setText(textToSend);
         message.enableHtml(true);
         message.disableWebPagePreview();
+        ReplyKeyboardRemove remove = new ReplyKeyboardRemove(true);
+        message.setReplyMarkup(remove);
         if (markup != null) {
             message.setReplyMarkup(markup);
         }
-
         try {
             execute(message); // Call method to send the message
         } catch (TelegramApiException e) {

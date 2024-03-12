@@ -56,9 +56,6 @@ public class Buttons {
     private static final KeyboardButton COMPLIMENT_BUTTON = new KeyboardButton("\uD83D\uDE0DБлагодарность");
     private static final KeyboardButton OTHER_BUTTON = new KeyboardButton("\uD83E\uDD14Другое");
     public static ReplyKeyboardMarkup typesKeyboardMarkup() {
-        List<KeyboardButton> firstRow = List.of(VIOLATION_BUTTON, COMPLIMENT_BUTTON, OTHER_BUTTON);
-        List<List<KeyboardButton>> rowsInLine = List.of(firstRow);
-
         KeyboardRow row = new KeyboardRow();
         row.add(VIOLATION_BUTTON);
         row.add(COMPLIMENT_BUTTON);
@@ -68,6 +65,7 @@ public class Buttons {
         ReplyKeyboardMarkup markup = new ReplyKeyboardMarkup();
         markup.setKeyboard(rows);
         markup.setOneTimeKeyboard(true);
+        markup.setResizeKeyboard(true);
 
         return markup;
     }
