@@ -8,6 +8,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.hse.edu.tukach.components.Buttons;
 import ru.hse.edu.tukach.dto.application.ApplicationFromTelegramCreationDto;
@@ -34,7 +35,7 @@ public class TukachBot extends TelegramLongPollingBot {
 //        this.application = new ApplicationFromTelegramCreationDto();
 ////        this.service = service;
 //    }
-    void sendMessage(Long chatId, String textToSend, InlineKeyboardMarkup markup) {
+    void sendMessage(Long chatId, String textToSend, ReplyKeyboard markup) {
         SendMessage message = new SendMessage(); // Create a SendMessage object with mandatory fields
         message.setChatId(chatId.toString());
         message.setText(textToSend);
@@ -42,6 +43,7 @@ public class TukachBot extends TelegramLongPollingBot {
         if (markup != null) {
             message.setReplyMarkup(markup);
         }
+
 
         try {
             execute(message); // Call method to send the message
@@ -62,11 +64,10 @@ public class TukachBot extends TelegramLongPollingBot {
     private void requestCommandReceived(Long chatId) {
         String answer = "\uD83D\uDD25Система проверки нарушения корпоративной этики гарантирует, что Ваша заявка " +
                 "будет защищена и не будет доступна третьим лицам.\n<b>Выберите тип заявки:</b>";
-        sendMessage(chatId, answer, Buttons.homeInlineMarkup());
+        sendMessage(chatId, answer, Buttons.typesKeyboardMarkup());
         this.application = new ApplicationFromTelegramCreationDto();
         this.application.setInitiatorTg(chatId.toString());
         this.application.setCurrentField("type");
-//        service.save(application);
     }
 
     private void helpCommandReceived(Long chatId) {
@@ -120,7 +121,7 @@ public class TukachBot extends TelegramLongPollingBot {
             case "type":
                 this.application.setType(ApplicationType.OTHER);
                 for (ApplicationType type : ApplicationType.values()) {
-                    if (type.getMessage().equals(receivedMessage)) {
+                    if (type.getMessage().endsWith(receivedMessage)) {
                         this.application.setType(type);
                         break;
                     }

@@ -1,16 +1,15 @@
 package ru.hse.edu.tukach.components;
 
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 
 import java.util.List;
 
 public class Buttons {
     private static final InlineKeyboardButton START_BUTTON = new InlineKeyboardButton("\uD83C\uDFE0Главное меню");
-    private static final InlineKeyboardButton HELP_BUTTON = new InlineKeyboardButton("\uD83C\uDD98Помощь");
-    private static final InlineKeyboardButton REQUEST_BUTTON = new InlineKeyboardButton("✍\uFE0FОтправить заявку");
-    private static final InlineKeyboardButton LIST_BUTTON = new InlineKeyboardButton("\uD83D\uDCD1Список заявок");
-    private static final InlineKeyboardButton MORE_BUTTON = new InlineKeyboardButton("\uD83D\uDC40Подробности");
 
     public static InlineKeyboardMarkup homeInlineMarkup() {
         START_BUTTON.setCallbackData("/start");
@@ -23,6 +22,9 @@ public class Buttons {
 
         return markupInline;
     }
+    private static final InlineKeyboardButton HELP_BUTTON = new InlineKeyboardButton("\uD83C\uDD98Помощь");
+    private static final InlineKeyboardButton REQUEST_BUTTON = new InlineKeyboardButton("✍\uFE0FОтправить заявку");
+    private static final InlineKeyboardButton LIST_BUTTON = new InlineKeyboardButton("\uD83D\uDCD1Список заявок");
 
     public static InlineKeyboardMarkup startInlineMarkup() {
         REQUEST_BUTTON.setCallbackData("request");
@@ -38,7 +40,7 @@ public class Buttons {
 
         return markupInline;
     }
-
+    private static final InlineKeyboardButton MORE_BUTTON = new InlineKeyboardButton("\uD83D\uDC40Подробности");
     public static InlineKeyboardMarkup moreInlineMarkup() {
         MORE_BUTTON.setCallbackData("more");
 
@@ -49,5 +51,23 @@ public class Buttons {
         markupInline.setKeyboard(rowsInLine);
 
         return markupInline;
+    }
+    private static final KeyboardButton VIOLATION_BUTTON = new KeyboardButton("\uD83D\uDE21Нарушение");
+    private static final KeyboardButton COMPLIMENT_BUTTON = new KeyboardButton("\uD83D\uDE0DБлагодарность");
+    private static final KeyboardButton OTHER_BUTTON = new KeyboardButton("\uD83E\uDD14Другое");
+    public static ReplyKeyboardMarkup typesKeyboardMarkup() {
+        List<KeyboardButton> firstRow = List.of(VIOLATION_BUTTON, COMPLIMENT_BUTTON, OTHER_BUTTON);
+        List<List<KeyboardButton>> rowsInLine = List.of(firstRow);
+
+        KeyboardRow row = new KeyboardRow();
+        row.add(VIOLATION_BUTTON);
+        row.add(COMPLIMENT_BUTTON);
+        row.add(OTHER_BUTTON);
+        List<KeyboardRow> rows = List.of(row);
+
+        ReplyKeyboardMarkup markup = new ReplyKeyboardMarkup();
+        markup.setKeyboard(rows);
+
+        return markup;
     }
 }
