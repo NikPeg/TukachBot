@@ -56,7 +56,7 @@ public class ApplicationService {
      * Информация по каждой заявке предоставляется кратко.
      */
     @Transactional(readOnly = true)
-    public List<ApplicationLiteDto> getApplicationByInitiatorTg(String initiatorTg) {
+    public List<ApplicationLiteDto> getAllApplicationsByInitiatorTg(String initiatorTg) {
         return applicationRepository.findAllByInitiatorTg(initiatorTg);
     }
 

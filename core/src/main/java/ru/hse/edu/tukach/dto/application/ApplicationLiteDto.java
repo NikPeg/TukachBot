@@ -1,5 +1,6 @@
 package ru.hse.edu.tukach.dto.application;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import ru.hse.edu.tukach.model.application.ApplicationStatus;
@@ -9,6 +10,7 @@ import java.time.Instant;
 
 @Getter
 @Setter
+@AllArgsConstructor
 public class ApplicationLiteDto {
 
     private Long id;
