@@ -111,7 +111,7 @@ public class TukachBot extends TelegramLongPollingBot {
         String answer = "";
         switch (this.application.getCurrentField()) {
             case "type":
-                this.application.setType(ApplicationType.valueOf(receivedMessage));
+                this.application.setType(ApplicationType.VIOLATION);
                 this.application.setCurrentField("topic");
                 answer = "Теперь введите тему заявки:";
                 break;
