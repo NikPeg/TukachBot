@@ -60,6 +60,7 @@ public class TukachBot extends TelegramLongPollingBot {
         String answer = "\uD83D\uDD25Система проверки нарушения корпоративной этики гарантирует, что Ваша заявка " +
                 "будет защищена и не будет доступна третьим лицам.\n<b>Введите тип заявки:</b>";
         sendMessage(chatId, answer, Buttons.homeInlineMarkup());
+        this.application = new ApplicationFromTelegramCreationDto();
         this.application.setInitiatorTg(chatId.toString());
         this.application.setCurrentField("type");
 //        service.save(application);
