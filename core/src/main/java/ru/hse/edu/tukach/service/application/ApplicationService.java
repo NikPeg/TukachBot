@@ -14,6 +14,7 @@ import ru.hse.edu.tukach.model.application.Application;
 import ru.hse.edu.tukach.model.application.ApplicationStatus;
 import ru.hse.edu.tukach.repository.application.ApplicationRepository;
 
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -42,6 +43,8 @@ public class ApplicationService {
     @Transactional
     public Long save(ApplicationFromTelegramCreationDto dto) {
         Application application = applicationMapper.toApplication(dto);
+        application.setCreatedDateTime(Instant.now());
+        application.setLastModifiedDateTime(Instant.now());
         application.setStatus(ApplicationStatus.NEW);
 
         return applicationRepository.save(application).getId();
