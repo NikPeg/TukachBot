@@ -11,8 +11,11 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.hse.edu.tukach.components.Buttons;
 import ru.hse.edu.tukach.dto.application.ApplicationFromTelegramCreationDto;
+import ru.hse.edu.tukach.dto.application.ApplicationLiteDto;
 import ru.hse.edu.tukach.model.application.ApplicationType;
 import ru.hse.edu.tukach.service.application.ApplicationService;
+
+import java.util.List;
 
 import static ru.hse.edu.tukach.components.BotCommands.LIST_OF_COMMANDS;
 
@@ -52,13 +55,13 @@ public class TukachBot extends TelegramLongPollingBot {
                 "\uD83D\uDE0EЯ бот системы приема заявок нарушения корпоративной этики. " +
                 "Я здесь, чтобы помочь вам поддерживать высокие стандарты профессионального поведения в нашем " +
                 "коллективе.\n" +
-                "❓<b>Выберете нужное действие:</b>";
+                "❓<b>Выберите нужное действие:</b>";
         sendMessage(chatId, answer, Buttons.startInlineMarkup());
     }
 
     private void requestCommandReceived(Long chatId) {
         String answer = "\uD83D\uDD25Система проверки нарушения корпоративной этики гарантирует, что Ваша заявка " +
-                "будет защищена и не будет доступна третьим лицам.\n<b>Введите тип заявки:</b>";
+                "будет защищена и не будет доступна третьим лицам.\n<b>Выберите тип заявки:</b>";
         sendMessage(chatId, answer, Buttons.homeInlineMarkup());
         this.application = new ApplicationFromTelegramCreationDto();
         this.application.setInitiatorTg(chatId.toString());
@@ -80,20 +83,23 @@ public class TukachBot extends TelegramLongPollingBot {
     }
 
     private void listCommandReceived(Long chatId) {
-        if (this.application.getCurrentField() != null && this.application.getCurrentField().equals("all")) {
-            String answer = "\uD83D\uDCD5Список Ваших заявок:";
-            sendMessage(chatId, answer, Buttons.homeInlineMarkup());
-            answer = "Заявка номер 1:" +
-                    "\nТип заявки: " + this.application.getType() +
-                    "\nТема заявки: " + this.application.getTopic() +
-                    "\nТекст заявки: " + this.application.getDescription() +
-                    "\nВаши ФИО: " + this.application.getInitiatorFio() +
-                    "\n<b>Заявка в обработке, ожидайте!</b>";
+        List<ApplicationLiteDto> applications = service.getAllApplicationsByInitiatorTg(chatId.toString());
+        if (applications.isEmpty()) {
+            String answer = "💫Пока Ваш список заявок пуст! Отправьте первую заявку, чтобы пополнить его.";
             sendMessage(chatId, answer, Buttons.homeInlineMarkup());
         }
         else {
-            String answer = "💫Пока Ваш список заявок пуст! Отправьте первую заявку, чтобы пополнить его.";
-            sendMessage(chatId, answer, Buttons.homeInlineMarkup());
+            String answer = "\uD83D\uDCD5Список Ваших заявок:";
+            sendMessage(chatId, answer, null);
+            for (ApplicationLiteDto application : applications) {
+                answer = "<b>Заявка №" + application.getId() + "</b>" +
+                        "\nТип заявки: " + application.getType() +
+                        "\nТема заявки: " + application.getTopic() +
+                        "\nСтатус заявки: " + application.getStatus();
+                sendMessage(chatId, answer, Buttons.moreInlineMarkup());
+            }
+            String more = "Нажмите кнопку \"\uD83D\uDC40Подробности\" под интересующей заявкой, чтобы узнать полную информацию о ней.";
+            sendMessage(chatId, more, Buttons.homeInlineMarkup());
         }
     }
 
@@ -103,7 +109,7 @@ public class TukachBot extends TelegramLongPollingBot {
         }
         else {
             String answer = "\uD83E\uDD37\u200D♂\uFE0FЯ пока не знаю такой команды. " +
-                    "<b>Выбери один из вариантов действий:</b>";
+                    "<b>Выберите один из вариантов действий:</b>";
             sendMessage(chatId, answer, Buttons.startInlineMarkup());
         }
     }
@@ -112,8 +118,13 @@ public class TukachBot extends TelegramLongPollingBot {
         String answer = "";
         switch (this.application.getCurrentField()) {
             case "type":
-                this.application.setType(ApplicationType.VIOLATION);
-                this.application.setCurrentField("topic");
+                this.application.setType(ApplicationType.OTHER);
+                for (ApplicationType type : ApplicationType.values()) {
+                    if (type.getMessage().equals(receivedMessage)) {
+                        this.application.setType(type);
+                        break;
+                    }
+                }
                 answer = "Теперь введите тему заявки:";
                 break;
             case "topic":
