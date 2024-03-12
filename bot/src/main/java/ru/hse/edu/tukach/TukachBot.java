@@ -5,6 +5,9 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -47,6 +50,27 @@ public class TukachBot extends TelegramLongPollingBot {
         }
     }
 
+    void editMessage(Long chatId, Integer messageId, String textToSend, InlineKeyboardMarkup markup) {
+        EditMessageText editText = new EditMessageText();
+        editText.setChatId(chatId.toString());
+        editText.setMessageId(messageId);
+        editText.setText(textToSend);
+        editText.enableHtml(true);
+        editText.disableWebPagePreview();
+        EditMessageReplyMarkup editMarkup = new EditMessageReplyMarkup();
+        editMarkup.setMessageId(messageId);
+        editMarkup.setChatId(chatId.toString());
+        if (markup != null) {
+            editMarkup.setReplyMarkup(markup);
+        }
+        try {
+            execute(editText); // Call method to send the message
+            execute(editMarkup); // Call method to send the message
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void startCommandReceived(Long chatId, String name) {
         String answer = "\uD83D\uDC4BДобрый день, " + name + "!\n" +
                 "\uD83D\uDE0EЯ бот системы приема заявок нарушения корпоративной этики. " +
@@ -65,7 +89,7 @@ public class TukachBot extends TelegramLongPollingBot {
         this.application.setCurrentField("type");
     }
 
-    private void helpCommandReceived(Long chatId) {
+    private void helpCommandReceived(Long chatId, Integer messageId) {
         String answer = "😊Вы обратились в систему приема заявок по вопросам нарушений корпоративной этики. Для того чтобы оформить заявку, необходимо ввести следующую информацию:\n" +
             "• \uD83E\uDD35\u200D♂\uFE0FВаши ФИО;\n" +
             "• \uD83D\uDD54Время нарушения;\n" +
@@ -75,7 +99,7 @@ public class TukachBot extends TelegramLongPollingBot {
             "📤Чтобы начать ввод данных заявки, нажмите кнопку \"✍\uFE0FОтправить заявку\" и ваш запрос будет немедленно направлен в специализированный отдел для рассмотрения и принятия соответствующих мер.\n\n" +
             "\uD83D\uDE4FПожалуйста, внесите всю необходимую информацию в четкой и ясной форме, чтобы мы могли максимально быстро и эффективно рассмотреть вашу заявку. 🕒\n\n" +
             "👏Благодарим вас за стремление поддерживать корпоративную этику в нашей компании. Если у вас возникнут дополнительные вопросы, не стесняйтесь обращаться к администратору бота: @nikpeg. 🤖\n";
-        sendMessage(chatId, answer, Buttons.homeInlineMarkup());
+        editMessage(chatId, messageId, answer, Buttons.homeInlineMarkup());
     }
 
     private void listCommandReceived(Long chatId) {
@@ -155,33 +179,33 @@ public class TukachBot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         long chatId = 0;
-        long userId = 0; //это нам понадобится позже
+        Integer messageId = 0;
         String userName = null;
         String receivedMessage;
 
         //если получено сообщение текстом
         if(update.hasMessage()) {
             chatId = update.getMessage().getChatId();
-            userId = update.getMessage().getFrom().getId();
+            messageId = update.getMessage().getMessageId();
             userName = update.getMessage().getFrom().getFirstName();
 
             if (update.getMessage().hasText()) {
                 receivedMessage = update.getMessage().getText();
-                botAnswerUtils(receivedMessage, chatId, userName);
+                botAnswerUtils(receivedMessage, messageId, chatId, userName);
             }
 
             //если нажата одна из кнопок бота
         } else if (update.hasCallbackQuery()) {
             chatId = update.getCallbackQuery().getMessage().getChatId();
-            userId = update.getCallbackQuery().getFrom().getId();
+            messageId = update.getCallbackQuery().getMessage().getMessageId();
             userName = update.getCallbackQuery().getFrom().getFirstName();
             receivedMessage = update.getCallbackQuery().getData();
 
-            botAnswerUtils(receivedMessage, chatId, userName);
+            botAnswerUtils(receivedMessage, messageId, chatId, userName);
         }
     }
 
-    private void botAnswerUtils(String receivedMessage, long chatId, String userName) {
+    private void botAnswerUtils(String receivedMessage, Integer messageId, long chatId, String userName) {
         switch (receivedMessage) {
             case "/start":
                 startCommandReceived(chatId, userName);
@@ -190,7 +214,7 @@ public class TukachBot extends TelegramLongPollingBot {
                 requestCommandReceived(chatId);
                 break;
             case "/help":
-                helpCommandReceived(chatId);
+                helpCommandReceived(chatId, messageId);
                 break;
             case "list":
                 listCommandReceived(chatId);
