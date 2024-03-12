@@ -67,6 +67,7 @@ public class Buttons {
 
         ReplyKeyboardMarkup markup = new ReplyKeyboardMarkup();
         markup.setKeyboard(rows);
+        markup.setOneTimeKeyboard(true);
 
         return markup;
     }

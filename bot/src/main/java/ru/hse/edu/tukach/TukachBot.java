@@ -9,6 +9,9 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.hse.edu.tukach.components.Buttons;
 import ru.hse.edu.tukach.dto.application.ApplicationFromTelegramCreationDto;
@@ -26,24 +29,15 @@ public class TukachBot extends TelegramLongPollingBot {
     private final ApplicationService service;
     private ApplicationFromTelegramCreationDto application;
 
-//    public TukachBot() {
-//        try {
-//            this.execute(new SetMyCommands(LIST_OF_COMMANDS, new BotCommandScopeDefault(), null));
-//        } catch (TelegramApiException e){
-//            e.printStackTrace();
-//        }
-//        this.application = new ApplicationFromTelegramCreationDto();
-////        this.service = service;
-//    }
     void sendMessage(Long chatId, String textToSend, ReplyKeyboard markup) {
         SendMessage message = new SendMessage(); // Create a SendMessage object with mandatory fields
         message.setChatId(chatId.toString());
         message.setText(textToSend);
         message.enableHtml(true);
+        message.disableWebPagePreview();
         if (markup != null) {
             message.setReplyMarkup(markup);
         }
-
 
         try {
             execute(message); // Call method to send the message
@@ -121,17 +115,18 @@ public class TukachBot extends TelegramLongPollingBot {
             case "type":
                 this.application.setType(ApplicationType.OTHER);
                 for (ApplicationType type : ApplicationType.values()) {
-                    if (type.getMessage().endsWith(receivedMessage)) {
+                    if (receivedMessage.endsWith(type.getMessage())) {
                         this.application.setType(type);
                         break;
                     }
                 }
+                this.application.setCurrentField("topic");
                 answer = "Теперь введите тему заявки:";
                 break;
             case "topic":
                 this.application.setTopic(receivedMessage);
                 this.application.setCurrentField("description");
-                answer = "Теперь введите описание заявки:";
+                answer = "Теперь введите описание заявки. Вы можете добавить ссылку на картинку с помощью сервисов для хранения картинок (например, imgbb.com):";
                 break;
             case "description":
                 this.application.setDescription(receivedMessage);
