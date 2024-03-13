@@ -25,4 +25,10 @@ public class GlobalRestControllerExceptionHandler extends ResponseEntityExceptio
     public Response<?> handleNotFoundRestException(NotFoundException exception) {
         return Response.fail(exception.getExceptionCode(), "param", exception.getMessage());
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Response<?> handleIllegalArgumentException(IllegalArgumentException exception) {
+        return Response.fail(ExceptionCode.BAD_REQUEST_ERROR, "param", exception.getMessage());
+    }
 }

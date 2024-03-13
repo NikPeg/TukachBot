@@ -11,13 +11,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.hse.edu.tukach.dto.application.ApplicationFilter;
 import ru.hse.edu.tukach.dto.application.ApplicationFromEmailCreationDto;
+import ru.hse.edu.tukach.dto.application.ApplicationReviewDto;
 import ru.hse.edu.tukach.dto.application.ApplicationSource;
 import ru.hse.edu.tukach.dto.rest.Response;
 import ru.hse.edu.tukach.model.application.Application;
 import ru.hse.edu.tukach.permissions.annotations.Permissions;
 import ru.hse.edu.tukach.service.application.ApplicationService;
 import ru.hse.edu.tukach.service.security.permission.CustomPermission;
+
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/v1/application")
@@ -41,10 +45,20 @@ public class ApplicationController {
         return Response.success(applicationService.getApplicationByIdAndInitiator(id, email, ApplicationSource.EMAIL));
     }
 
-    @PutMapping("/review/{id}")
-    @Operation(summary = "Получение информации по заявке пользователя, отправлявшего её с фронта")
+    @PutMapping("/{id}")
+    @Operation(
+        summary = "Работа с заявкой при её рассмотрении",
+        description = "Перевод заявки в статус NEW -> REVIEW или REVIEW -> COMPLETED"
+    )
     @Permissions(permissions = CustomPermission.APPLICATIONS_UPDATE)
-    public void startApplicationReview(@Parameter(description = "Идентификатор заявки") @PathVariable Long id) {
+    public void updateApplication(@Parameter(description = "Идентификатор заявки") @PathVariable Long id,
+                                  @RequestBody ApplicationReviewDto dto) {
+        applicationService.updateApplicationById(id, dto);
+    }
 
+    @GetMapping
+    @Operation(summary = "Получение информации по заявке пользователя, отправлявшего её с фронта")
+    public Response<List<Application>> getApplicationByFilters(@RequestBody ApplicationFilter filter) {
+        return Response.success(applicationService.getApplicationsByFilter(filter));
     }
 }

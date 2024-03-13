@@ -9,6 +9,7 @@ import ru.hse.edu.tukach.dto.rest.MessageWithCode;
 public enum ExceptionCode  implements MessageWithCode {
 
     TUKACH_INTERNAL_ERROR("Unexpected server error"),
+    BAD_REQUEST_ERROR("{param}"),
     APPLICATION_NOT_FOUND("{param}"),
     USER_NOT_FOUND("{param}");
 

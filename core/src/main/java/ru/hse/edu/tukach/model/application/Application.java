@@ -85,7 +85,7 @@ public class Application {
      * Дата создания заявления
      */
     @CreatedDate
-    @Column(name = "created_dttm")
+    @Column(name = "created_dttm", updatable = false)
     private Instant createdDateTime;
 
     /**
