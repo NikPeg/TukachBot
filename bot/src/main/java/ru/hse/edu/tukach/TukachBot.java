@@ -20,10 +20,14 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.hse.edu.tukach.components.Buttons;
 import ru.hse.edu.tukach.dto.application.ApplicationFromTelegramCreationDto;
 import ru.hse.edu.tukach.dto.application.ApplicationLiteDto;
+import ru.hse.edu.tukach.dto.application.ApplicationSource;
+import ru.hse.edu.tukach.model.application.Application;
 import ru.hse.edu.tukach.model.application.ApplicationType;
 import ru.hse.edu.tukach.service.application.ApplicationService;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static ru.hse.edu.tukach.components.BotCommands.LIST_OF_COMMANDS;
 
@@ -147,6 +151,30 @@ public class TukachBot extends TelegramLongPollingBot {
         }
     }
 
+    private void moreCommandReceived(Message originalMessage) {
+        Pattern pattern = Pattern.compile("Заявка №(\\d+)");
+        Matcher matcher = pattern.matcher(originalMessage.getText());
+        long applicationId;
+        // Check if the pattern is found in the text
+        if (matcher.find()) {
+            // Extract and print the application number
+            String applicationNumber = matcher.group(1);
+            applicationId = Long.parseLong(applicationNumber);
+        } else {
+            sendMessage(originalMessage, "Что-то пошло не так...", Buttons.homeInlineMarkup());
+            return;
+        }
+        Application application = service.getApplicationByIdAndInitiator(applicationId, originalMessage.getChatId().toString(), ApplicationSource.TELEGRAM);
+        String answer = "<b>Заявка №" + application.getId() + "</b>" +
+                "\nТип заявки: " + application.getType() +
+                "\nТема заявки: " + application.getTopic() +
+                "\nСтатус заявки: " + application.getStatus() +
+                "\nВремя создания: " + application.getCreatedDateTime() +
+                "\nОписание заявки: " + application.getDescription() +
+                "\nОтвет на заявку: " + application.getReviewerResponse();
+        sendMessage(originalMessage, answer, Buttons.homeInlineMarkup());
+    }
+
     private void unknownCommandReceived(Message originalMessage) {
         if (this.application != null && this.application.getInitiatorTg().equals(originalMessage.getChatId().toString())) {
             applicationCompletionReceived(originalMessage);
@@ -236,6 +264,9 @@ public class TukachBot extends TelegramLongPollingBot {
                 break;
             case "list":
                 listCommandReceived(originalMessage);
+                break;
+            case "more":
+                moreCommandReceived(originalMessage);
                 break;
             default:
                 unknownCommandReceived(originalMessage);
