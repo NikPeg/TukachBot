@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -32,17 +33,28 @@ public class TukachBot extends TelegramLongPollingBot {
     private final ApplicationService service;
     private ApplicationFromTelegramCreationDto application;
 
-    void sendMessage(Long chatId, String textToSend, ReplyKeyboard markup) {
-        SendMessage message = new SendMessage(); // Create a SendMessage object with mandatory fields
-        message.setChatId(chatId.toString());
-        message.setText(textToSend);
-        message.enableHtml(true);
-        message.disableWebPagePreview();
+    void sendMessage(Message message, String textToSend, ReplyKeyboard markup) {
+        SendMessage sendMessage = new SendMessage(); // Create a SendMessage object with mandatory fields
+        sendMessage.setChatId(message.getChatId());
+        sendMessage.setText(textToSend);
+        sendMessage.enableHtml(true);
+        sendMessage.disableWebPagePreview();
         ReplyKeyboardRemove remove = new ReplyKeyboardRemove(true);
-        message.setReplyMarkup(remove);
+        sendMessage.setReplyMarkup(remove);
         if (markup != null) {
-            message.setReplyMarkup(markup);
+            sendMessage.setReplyMarkup(markup);
         }
+        try {
+            execute(sendMessage); // Call method to send the message
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    void deleteMessage(Message originalMessage) {
+        DeleteMessage message = new DeleteMessage(); // Create a SendMessage object with mandatory fields
+        message.setChatId(originalMessage.getChatId().toString());
+        message.setMessageId(originalMessage.getMessageId());
         try {
             execute(message); // Call method to send the message
         } catch (TelegramApiException e) {
@@ -50,16 +62,17 @@ public class TukachBot extends TelegramLongPollingBot {
         }
     }
 
-    void editMessage(Long chatId, Integer messageId, String textToSend, InlineKeyboardMarkup markup) {
+    void editMessage(Message originalMessage, String textToSend, InlineKeyboardMarkup markup) {
         EditMessageText editText = new EditMessageText();
-        editText.setChatId(chatId.toString());
-        editText.setMessageId(messageId);
+        editText.setChatId(originalMessage.getChatId().toString());
+        editText.setMessageId(originalMessage.getMessageId());
         editText.setText(textToSend);
         editText.enableHtml(true);
         editText.disableWebPagePreview();
+
         EditMessageReplyMarkup editMarkup = new EditMessageReplyMarkup();
-        editMarkup.setMessageId(messageId);
-        editMarkup.setChatId(chatId.toString());
+        editMarkup.setMessageId(originalMessage.getMessageId());
+        editMarkup.setChatId(originalMessage.getChatId().toString());
         if (markup != null) {
             editMarkup.setReplyMarkup(markup);
         }
@@ -71,25 +84,31 @@ public class TukachBot extends TelegramLongPollingBot {
         }
     }
 
-    private void startCommandReceived(Long chatId, String name) {
-        String answer = "\uD83D\uDC4BДобрый день, " + name + "!\n" +
+    private void startCommandReceived(Message originalMessage) {
+        String answer = "\uD83D\uDC4BДобрый день, " + originalMessage.getChat().getFirstName() + "!\n" +
                 "\uD83D\uDE0EЯ бот системы приема заявок нарушения корпоративной этики. " +
                 "Я здесь, чтобы помочь вам поддерживать высокие стандарты профессионального поведения в нашем " +
                 "коллективе.\n" +
                 "❓<b>Выберите нужное действие:</b>";
-        sendMessage(chatId, answer, Buttons.startInlineMarkup());
+        if (originalMessage.getFrom().getIsBot()) {
+            editMessage(originalMessage, answer, Buttons.startInlineMarkup());
+        }
+        else {
+            sendMessage(originalMessage, answer, Buttons.startInlineMarkup());
+        }
     }
 
-    private void requestCommandReceived(Long chatId) {
+    private void requestCommandReceived(Message originalMessage) {
         String answer = "\uD83D\uDD25Система проверки нарушения корпоративной этики гарантирует, что Ваша заявка " +
                 "будет защищена и не будет доступна третьим лицам.\n<b>Выберите тип заявки:</b>";
-        sendMessage(chatId, answer, Buttons.typesKeyboardMarkup());
+        deleteMessage(originalMessage);
+        sendMessage(originalMessage, answer, Buttons.typesKeyboardMarkup());
         this.application = new ApplicationFromTelegramCreationDto();
-        this.application.setInitiatorTg(chatId.toString());
+        this.application.setInitiatorTg(originalMessage.getChatId().toString());
         this.application.setCurrentField("type");
     }
 
-    private void helpCommandReceived(Long chatId, Integer messageId) {
+    private void helpCommandReceived(Message originalMessage) {
         String answer = "😊Вы обратились в систему приема заявок по вопросам нарушений корпоративной этики. Для того чтобы оформить заявку, необходимо ввести следующую информацию:\n" +
             "• \uD83E\uDD35\u200D♂\uFE0FВаши ФИО;\n" +
             "• \uD83D\uDD54Время нарушения;\n" +
@@ -99,48 +118,54 @@ public class TukachBot extends TelegramLongPollingBot {
             "📤Чтобы начать ввод данных заявки, нажмите кнопку \"✍\uFE0FОтправить заявку\" и ваш запрос будет немедленно направлен в специализированный отдел для рассмотрения и принятия соответствующих мер.\n\n" +
             "\uD83D\uDE4FПожалуйста, внесите всю необходимую информацию в четкой и ясной форме, чтобы мы могли максимально быстро и эффективно рассмотреть вашу заявку. 🕒\n\n" +
             "👏Благодарим вас за стремление поддерживать корпоративную этику в нашей компании. Если у вас возникнут дополнительные вопросы, не стесняйтесь обращаться к администратору бота: @nikpeg. 🤖\n";
-        editMessage(chatId, messageId, answer, Buttons.homeInlineMarkup());
+        if (originalMessage.getFrom().getIsBot()) {
+            editMessage(originalMessage, answer, Buttons.homeInlineMarkup());
+        }
+        else {
+            sendMessage(originalMessage, answer, Buttons.homeInlineMarkup());
+        }
     }
 
-    private void listCommandReceived(Long chatId) {
-        List<ApplicationLiteDto> applications = service.getAllApplicationsByInitiatorTg(chatId.toString());
+    private void listCommandReceived(Message originalMessage) {
+        List<ApplicationLiteDto> applications = service.getAllApplicationsByInitiatorTg(originalMessage.getChatId().toString());
         if (applications.isEmpty()) {
             String answer = "💫Пока Ваш список заявок пуст! Отправьте первую заявку, чтобы пополнить его.";
-            sendMessage(chatId, answer, Buttons.homeInlineMarkup());
+            editMessage(originalMessage, answer, Buttons.homeInlineMarkup());
         }
         else {
             String answer = "\uD83D\uDCD5Список Ваших заявок:";
-            sendMessage(chatId, answer, null);
+            editMessage(originalMessage, answer, null);
             for (ApplicationLiteDto application : applications) {
                 answer = "<b>Заявка №" + application.getId() + "</b>" +
                         "\nТип заявки: " + application.getType() +
                         "\nТема заявки: " + application.getTopic() +
                         "\nСтатус заявки: " + application.getStatus();
-                sendMessage(chatId, answer, Buttons.moreInlineMarkup());
+                sendMessage(originalMessage, answer, Buttons.moreInlineMarkup());
             }
             String more = "Нажмите кнопку \"\uD83D\uDC40Подробности\" под интересующей заявкой, чтобы узнать полную информацию о ней.";
-            sendMessage(chatId, more, Buttons.homeInlineMarkup());
+            sendMessage(originalMessage, more, Buttons.homeInlineMarkup());
         }
     }
 
-    private void unknownCommandReceived(Long chatId, String receivedMessage) {
-        if (this.application.getInitiatorTg().equals(chatId.toString())) {
-            applicationCompletionReceived(chatId, receivedMessage);
+    private void unknownCommandReceived(Message originalMessage) {
+        if (this.application != null && this.application.getInitiatorTg().equals(originalMessage.getChatId().toString())) {
+            applicationCompletionReceived(originalMessage);
         }
         else {
             String answer = "\uD83E\uDD37\u200D♂\uFE0FЯ пока не знаю такой команды. " +
                     "<b>Выберите один из вариантов действий:</b>";
-            sendMessage(chatId, answer, Buttons.startInlineMarkup());
+            sendMessage(originalMessage, answer, Buttons.startInlineMarkup());
         }
     }
 
-    private void applicationCompletionReceived(Long chatId, String receivedMessage) {
+    private void applicationCompletionReceived(Message originalMessage) {
         String answer = "";
+        String messageText = originalMessage.getText();
         switch (this.application.getCurrentField()) {
             case "type":
                 this.application.setType(ApplicationType.OTHER);
                 for (ApplicationType type : ApplicationType.values()) {
-                    if (receivedMessage.endsWith(type.getMessage())) {
+                    if (messageText.endsWith(type.getMessage())) {
                         this.application.setType(type);
                         break;
                     }
@@ -149,17 +174,17 @@ public class TukachBot extends TelegramLongPollingBot {
                 answer = "Теперь введите тему заявки:";
                 break;
             case "topic":
-                this.application.setTopic(receivedMessage);
+                this.application.setTopic(messageText);
                 this.application.setCurrentField("description");
                 answer = "Теперь введите описание заявки. Вы можете добавить ссылку на картинку с помощью сервисов для хранения картинок (например, imgbb.com):";
                 break;
             case "description":
-                this.application.setDescription(receivedMessage);
+                this.application.setDescription(messageText);
                 this.application.setCurrentField("fio");
                 answer = "Теперь введите Ваше ФИО:";
                 break;
             case "fio":
-                this.application.setInitiatorFio(receivedMessage);
+                this.application.setInitiatorFio(messageText);
                 this.application.setCurrentField("all");
                 answer = "❤\uFE0FСпасибо, заявка сохранена! Информация о заявке:\n" +
                          "Тип заявки: " + this.application.getType() +
@@ -173,54 +198,47 @@ public class TukachBot extends TelegramLongPollingBot {
                 answer = "Что-то пошло не так...";
                 break;
         }
-        sendMessage(chatId, answer, Buttons.homeInlineMarkup());
+        sendMessage(originalMessage, answer, Buttons.homeInlineMarkup());
     }
 
     @Override
     public void onUpdateReceived(Update update) {
-        long chatId = 0;
-        Integer messageId = 0;
-        String userName = null;
-        String receivedMessage;
+        String updateText;
+        Message originalMessage;
 
         //если получено сообщение текстом
         if(update.hasMessage()) {
-            chatId = update.getMessage().getChatId();
-            messageId = update.getMessage().getMessageId();
-            userName = update.getMessage().getFrom().getFirstName();
+            originalMessage = update.getMessage();
 
             if (update.getMessage().hasText()) {
-                receivedMessage = update.getMessage().getText();
-                botAnswerUtils(receivedMessage, messageId, chatId, userName);
+                updateText = update.getMessage().getText();
+                botAnswerUtils(updateText, originalMessage);
             }
 
             //если нажата одна из кнопок бота
         } else if (update.hasCallbackQuery()) {
-            chatId = update.getCallbackQuery().getMessage().getChatId();
-            messageId = update.getCallbackQuery().getMessage().getMessageId();
-            userName = update.getCallbackQuery().getFrom().getFirstName();
-            receivedMessage = update.getCallbackQuery().getData();
-
-            botAnswerUtils(receivedMessage, messageId, chatId, userName);
+            updateText = update.getCallbackQuery().getData();
+            originalMessage = update.getCallbackQuery().getMessage();
+            botAnswerUtils(updateText, originalMessage);
         }
     }
 
-    private void botAnswerUtils(String receivedMessage, Integer messageId, long chatId, String userName) {
-        switch (receivedMessage) {
+    private void botAnswerUtils(String callback, Message originalMessage) {
+        switch (callback) {
             case "/start":
-                startCommandReceived(chatId, userName);
+                startCommandReceived(originalMessage);
                 break;
             case "request":
-                requestCommandReceived(chatId);
+                requestCommandReceived(originalMessage);
                 break;
             case "/help":
-                helpCommandReceived(chatId, messageId);
+                helpCommandReceived(originalMessage);
                 break;
             case "list":
-                listCommandReceived(chatId);
+                listCommandReceived(originalMessage);
                 break;
             default:
-                unknownCommandReceived(chatId, receivedMessage);
+                unknownCommandReceived(originalMessage);
                 break;
         }
     }
