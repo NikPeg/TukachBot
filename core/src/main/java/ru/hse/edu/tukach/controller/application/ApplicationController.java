@@ -3,6 +3,7 @@ package ru.hse.edu.tukach.controller.application;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -56,8 +57,15 @@ public class ApplicationController {
         applicationService.updateApplicationById(id, dto);
     }
 
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Удаление заявки")
+    @Permissions(permissions = CustomPermission.APPLICATIONS_UPDATE)
+    public void deleteApplication(@Parameter(description = "Идентификатор заявки") @PathVariable Long id) {
+        applicationService.deleteApplication(id);
+    }
+
     @GetMapping
-    @Operation(summary = "Получение информации по заявке пользователя, отправлявшего её с фронта")
+    @Operation(summary = "Получение заявок по фильтрам")
     public Response<List<Application>> getApplicationByFilters(@RequestBody ApplicationFilter filter) {
         return Response.success(applicationService.getApplicationsByFilter(filter));
     }

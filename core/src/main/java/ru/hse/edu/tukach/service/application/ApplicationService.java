@@ -109,6 +109,16 @@ public class ApplicationService {
         applicationRepository.save(application);
     }
 
+    @Transactional
+    public void deleteApplication(Long id) {
+        Application application = applicationRepository.findById(id)
+            .orElseThrow(() -> new NotFoundException(
+                ExceptionCode.APPLICATION_NOT_FOUND,
+                "Заявка %d не найдена".formatted(id)
+            ));
+        applicationRepository.delete(application);
+    }
+
     @Transactional(readOnly = true)
     public List<Application> getApplicationsByFilter(ApplicationFilter filter) {
         if (CollectionUtils.isEmpty(filter.getStatuses()) && CollectionUtils.isEmpty(filter.getReviewerLogins())) {
