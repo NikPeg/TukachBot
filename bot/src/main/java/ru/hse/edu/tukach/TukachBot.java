@@ -146,22 +146,32 @@ public class TukachBot extends TelegramLongPollingBot {
                         "\nСтатус заявки: " + application.getStatus();
                 sendMessage(originalMessage, answer, Buttons.moreInlineMarkup());
             }
-            String more = "Нажмите кнопку \"\uD83D\uDC40Подробности\" под интересующей заявкой, чтобы узнать полную информацию о ней.";
+            String more = "Нажмите кнопку \"\uD83D\uDC40Подробности\" под интересующей заявкой, чтобы узнать полную информацию о ней.\n\n" +
+                    "Нажмите \"\uD83D\uDDD1Удалить\", чтобы удалить ошибочно отправленную заявку.";
             sendMessage(originalMessage, more, Buttons.homeInlineMarkup());
         }
     }
 
-    private void moreCommandReceived(Message originalMessage) {
+    private long applicationNumberFrom(Message message) throws RuntimeException {
         Pattern pattern = Pattern.compile("Заявка №(\\d+)");
-        Matcher matcher = pattern.matcher(originalMessage.getText());
-        long applicationId;
+        Matcher matcher = pattern.matcher(message.getText());
         // Check if the pattern is found in the text
         if (matcher.find()) {
             // Extract and print the application number
             String applicationNumber = matcher.group(1);
-            applicationId = Long.parseLong(applicationNumber);
+            return Long.parseLong(applicationNumber);
         } else {
-            sendMessage(originalMessage, "Что-то пошло не так...", Buttons.homeInlineMarkup());
+            throw new RuntimeException("Bad message received!");
+        }
+    }
+
+    private void moreCommandReceived(Message originalMessage) {
+        long applicationId;
+        try {
+            applicationId = applicationNumberFrom(originalMessage);
+        }
+        catch (RuntimeException e) {
+            sendMessage(originalMessage, "Что-то пошло не так!", Buttons.homeInlineMarkup());
             return;
         }
         Application application = service.getApplicationByIdAndInitiator(applicationId, originalMessage.getChatId().toString(), ApplicationSource.TELEGRAM);
@@ -172,6 +182,23 @@ public class TukachBot extends TelegramLongPollingBot {
                 "\nВремя создания: " + application.getCreatedDateTime() +
                 "\nОписание заявки: " + application.getDescription() +
                 "\nОтвет на заявку: " + application.getReviewerResponse();
+        sendMessage(originalMessage, answer, Buttons.homeInlineMarkup());
+    }
+
+    private void deleteCommandReceived(Message originalMessage) {
+        long applicationId;
+        try {
+            applicationId = applicationNumberFrom(originalMessage);
+        }
+        catch (RuntimeException e) {
+            sendMessage(originalMessage, "Что-то пошло не так!", Buttons.homeInlineMarkup());
+            return;
+        }
+
+        service.deleteApplication(applicationId);
+
+        deleteMessage(originalMessage);
+        String answer = "\uD83D\uDC4DЗаявка №" + applicationId + " успешно удалена!";
         sendMessage(originalMessage, answer, Buttons.homeInlineMarkup());
     }
 
@@ -267,6 +294,9 @@ public class TukachBot extends TelegramLongPollingBot {
                 break;
             case "more":
                 moreCommandReceived(originalMessage);
+                break;
+            case "delete":
+                deleteCommandReceived(originalMessage);
                 break;
             default:
                 unknownCommandReceived(originalMessage);

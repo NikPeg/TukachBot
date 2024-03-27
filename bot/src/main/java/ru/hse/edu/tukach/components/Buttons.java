@@ -41,10 +41,12 @@ public class Buttons {
         return markupInline;
     }
     private static final InlineKeyboardButton MORE_BUTTON = new InlineKeyboardButton("\uD83D\uDC40Подробности");
+    private static final InlineKeyboardButton DELETE_BUTTON = new InlineKeyboardButton("\uD83D\uDDD1Удалить");
     public static InlineKeyboardMarkup moreInlineMarkup() {
         MORE_BUTTON.setCallbackData("more");
+        DELETE_BUTTON.setCallbackData("delete");
 
-        List<InlineKeyboardButton> firstRow = List.of(MORE_BUTTON);
+        List<InlineKeyboardButton> firstRow = List.of(MORE_BUTTON, DELETE_BUTTON);
         List<List<InlineKeyboardButton>> rowsInLine = List.of(firstRow);
 
         InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
