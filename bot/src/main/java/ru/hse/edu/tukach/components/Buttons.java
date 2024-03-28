@@ -22,6 +22,7 @@ public class Buttons {
 
         return markupInline;
     }
+
     private static final InlineKeyboardButton HELP_BUTTON = new InlineKeyboardButton("\uD83C\uDD98Помощь");
     private static final InlineKeyboardButton REQUEST_BUTTON = new InlineKeyboardButton("✍\uFE0FОтправить заявку");
     private static final InlineKeyboardButton LIST_BUTTON = new InlineKeyboardButton("\uD83D\uDCD1Список заявок");
@@ -40,8 +41,10 @@ public class Buttons {
 
         return markupInline;
     }
+
     private static final InlineKeyboardButton MORE_BUTTON = new InlineKeyboardButton("\uD83D\uDC40Подробности");
     private static final InlineKeyboardButton DELETE_BUTTON = new InlineKeyboardButton("\uD83D\uDDD1Удалить");
+
     public static InlineKeyboardMarkup moreInlineMarkup() {
         MORE_BUTTON.setCallbackData("more");
         DELETE_BUTTON.setCallbackData("delete");
@@ -54,9 +57,11 @@ public class Buttons {
 
         return markupInline;
     }
+
     private static final KeyboardButton VIOLATION_BUTTON = new KeyboardButton("\uD83D\uDE21Нарушение");
     private static final KeyboardButton COMPLIMENT_BUTTON = new KeyboardButton("\uD83D\uDE0DБлагодарность");
     private static final KeyboardButton OTHER_BUTTON = new KeyboardButton("\uD83E\uDD14Другое");
+
     public static ReplyKeyboardMarkup typesKeyboardMarkup() {
         KeyboardRow row = new KeyboardRow();
         row.add(VIOLATION_BUTTON);

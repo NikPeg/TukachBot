@@ -20,11 +20,11 @@ public class TukachBotConfig {
     public TelegramBotsApi telegramBotsApi(TukachBot tukachBot) {
         TelegramBotsApi telegramBotsApi = null;
         try {
-			telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
-			telegramBotsApi.registerBot(tukachBot);
-		} catch (TelegramApiException e) {
-			e.printStackTrace();
-		}
+            telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
+            telegramBotsApi.registerBot(tukachBot);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
         return telegramBotsApi;
     }
 }

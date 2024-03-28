@@ -1,21 +1,16 @@
 package ru.hse.edu.tukach;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.hse.edu.tukach.components.Buttons;
 import ru.hse.edu.tukach.dto.application.ApplicationFromTelegramCreationDto;
@@ -28,8 +23,6 @@ import ru.hse.edu.tukach.service.application.ApplicationService;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static ru.hse.edu.tukach.components.BotCommands.LIST_OF_COMMANDS;
 
 @RequiredArgsConstructor
 public class TukachBot extends TelegramLongPollingBot {
@@ -96,8 +89,7 @@ public class TukachBot extends TelegramLongPollingBot {
                 "❓<b>Выберите нужное действие:</b>";
         if (originalMessage.getFrom().getIsBot()) {
             editMessage(originalMessage, answer, Buttons.startInlineMarkup());
-        }
-        else {
+        } else {
             sendMessage(originalMessage, answer, Buttons.startInlineMarkup());
         }
     }
@@ -114,18 +106,17 @@ public class TukachBot extends TelegramLongPollingBot {
 
     private void helpCommandReceived(Message originalMessage) {
         String answer = "😊Вы обратились в систему приема заявок по вопросам нарушений корпоративной этики. Для того чтобы оформить заявку, необходимо ввести следующую информацию:\n" +
-            "• \uD83E\uDD35\u200D♂\uFE0FВаши ФИО;\n" +
-            "• \uD83D\uDD54Время нарушения;\n" +
-            "• \uD83D\uDDFAМесто нарушения;\n" +
-            "• \uD83D\uDCDDПодробное описание нарушения;\n" +
-            "• 📸Также вы имеете возможность приложить фото и видео доказательства, если они имеются.\n\n" +
-            "📤Чтобы начать ввод данных заявки, нажмите кнопку \"✍\uFE0FОтправить заявку\" и ваш запрос будет немедленно направлен в специализированный отдел для рассмотрения и принятия соответствующих мер.\n\n" +
-            "\uD83D\uDE4FПожалуйста, внесите всю необходимую информацию в четкой и ясной форме, чтобы мы могли максимально быстро и эффективно рассмотреть вашу заявку. 🕒\n\n" +
-            "👏Благодарим вас за стремление поддерживать корпоративную этику в нашей компании. Если у вас возникнут дополнительные вопросы, не стесняйтесь обращаться к администратору бота: @nikpeg. 🤖\n";
+                "• \uD83E\uDD35\u200D♂\uFE0FВаши ФИО;\n" +
+                "• \uD83D\uDD54Время нарушения;\n" +
+                "• \uD83D\uDDFAМесто нарушения;\n" +
+                "• \uD83D\uDCDDПодробное описание нарушения;\n" +
+                "• 📸Также вы имеете возможность приложить фото и видео доказательства, если они имеются.\n\n" +
+                "📤Чтобы начать ввод данных заявки, нажмите кнопку \"✍\uFE0FОтправить заявку\" и ваш запрос будет немедленно направлен в специализированный отдел для рассмотрения и принятия соответствующих мер.\n\n" +
+                "\uD83D\uDE4FПожалуйста, внесите всю необходимую информацию в четкой и ясной форме, чтобы мы могли максимально быстро и эффективно рассмотреть вашу заявку. 🕒\n\n" +
+                "👏Благодарим вас за стремление поддерживать корпоративную этику в нашей компании. Если у вас возникнут дополнительные вопросы, не стесняйтесь обращаться к администратору бота: @nikpeg. 🤖\n";
         if (originalMessage.getFrom().getIsBot()) {
             editMessage(originalMessage, answer, Buttons.homeInlineMarkup());
-        }
-        else {
+        } else {
             sendMessage(originalMessage, answer, Buttons.homeInlineMarkup());
         }
     }
@@ -135,8 +126,7 @@ public class TukachBot extends TelegramLongPollingBot {
         if (applications.isEmpty()) {
             String answer = "💫Пока Ваш список заявок пуст! Отправьте первую заявку, чтобы пополнить его.";
             editMessage(originalMessage, answer, Buttons.homeInlineMarkup());
-        }
-        else {
+        } else {
             String answer = "\uD83D\uDCD5Список Ваших заявок:";
             editMessage(originalMessage, answer, null);
             for (ApplicationLiteDto application : applications) {
@@ -180,8 +170,7 @@ public class TukachBot extends TelegramLongPollingBot {
         long applicationId;
         try {
             applicationId = applicationNumberFrom(originalMessage);
-        }
-        catch (RuntimeException e) {
+        } catch (RuntimeException e) {
             sendMessage(originalMessage, "Что-то пошло не так!", Buttons.homeInlineMarkup());
             return;
         }
@@ -201,8 +190,7 @@ public class TukachBot extends TelegramLongPollingBot {
         long applicationId;
         try {
             applicationId = applicationNumberFrom(originalMessage);
-        }
-        catch (RuntimeException e) {
+        } catch (RuntimeException e) {
             sendMessage(originalMessage, "Что-то пошло не так!", Buttons.homeInlineMarkup());
             return;
         }
@@ -217,8 +205,7 @@ public class TukachBot extends TelegramLongPollingBot {
     private void unknownCommandReceived(Message originalMessage) {
         if (this.application != null && this.application.getInitiatorTg().equals(originalMessage.getChatId().toString())) {
             applicationCompletionReceived(originalMessage);
-        }
-        else {
+        } else {
             String answer = "\uD83E\uDD37\u200D♂\uFE0FЯ пока не знаю такой команды. " +
                     "<b>Выберите один из вариантов действий:</b>";
             sendMessage(originalMessage, answer, Buttons.startInlineMarkup());
@@ -254,12 +241,12 @@ public class TukachBot extends TelegramLongPollingBot {
                 this.application.setInitiatorFio(messageText);
                 this.application.setCurrentField("all");
                 answer = "❤\uFE0FСпасибо, заявка сохранена! Информация о заявке:\n" +
-                         "Тип заявки: " + this.application.getType() +
-                         "\nТема заявки: " + this.application.getTopic() +
-                         "\nТекст заявки: " + this.application.getDescription() +
-                         "\nВаши ФИО: " + this.application.getInitiatorFio() +
-                         "\nСсылка на заявку: " + generateSlug() +
-                         "\n<b>Заявка в обработке, ожидайте!</b>";
+                        "Тип заявки: " + this.application.getType() +
+                        "\nТема заявки: " + this.application.getTopic() +
+                        "\nТекст заявки: " + this.application.getDescription() +
+                        "\nВаши ФИО: " + this.application.getInitiatorFio() +
+                        "\nСсылка на заявку: " + generateSlug() +
+                        "\n<b>Заявка в обработке, ожидайте!</b>";
                 service.save(application);
                 break;
             default:
@@ -275,7 +262,7 @@ public class TukachBot extends TelegramLongPollingBot {
         Message originalMessage;
 
         //если получено сообщение текстом
-        if(update.hasMessage()) {
+        if (update.hasMessage()) {
             originalMessage = update.getMessage();
 
             if (update.getMessage().hasText()) {
