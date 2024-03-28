@@ -81,8 +81,8 @@ public class TukachBot extends TelegramLongPollingBot {
             editMarkup.setReplyMarkup(markup);
         }
         try {
-            execute(editText); // Call method to send the message
-            execute(editMarkup); // Call method to send the message
+            execute(editText); // Call method to edit the message
+            execute(editMarkup); // Call method to edit the message markup
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
@@ -165,6 +165,17 @@ public class TukachBot extends TelegramLongPollingBot {
         }
     }
 
+    private String generateSlug() {
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        StringBuilder result = new StringBuilder();
+        int lengthToGenerate = 15;
+        for (int i = 0; i < lengthToGenerate; i++) {
+            result.append(characters.charAt((int) Math.floor(Math.random() * characters.length())));
+        }
+
+        return result.toString();
+    }
+
     private void moreCommandReceived(Message originalMessage) {
         long applicationId;
         try {
@@ -181,7 +192,8 @@ public class TukachBot extends TelegramLongPollingBot {
                 "\nСтатус заявки: " + application.getStatus() +
                 "\nВремя создания: " + application.getCreatedDateTime() +
                 "\nОписание заявки: " + application.getDescription() +
-                "\nОтвет на заявку: " + application.getReviewerResponse();
+                "\nОтвет на заявку: " + application.getReviewerResponse() +
+                "\nСсылка на заявку: http://localhost:4200/response/" + generateSlug();
         sendMessage(originalMessage, answer, Buttons.homeInlineMarkup());
     }
 
@@ -246,6 +258,7 @@ public class TukachBot extends TelegramLongPollingBot {
                          "\nТема заявки: " + this.application.getTopic() +
                          "\nТекст заявки: " + this.application.getDescription() +
                          "\nВаши ФИО: " + this.application.getInitiatorFio() +
+                         "\nСсылка на заявку: " + generateSlug() +
                          "\n<b>Заявка в обработке, ожидайте!</b>";
                 service.save(application);
                 break;
